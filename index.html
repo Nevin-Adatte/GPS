@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Location Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>        
+        const token = 'WQWylae_P2QBmIdlMOAvyv3ZHUU01pxk';
+        const apiUrlCommon = `https://blynk.cloud/external/api/get?token=${token}&v`;
+        const lati_url = apiUrlCommon + "1";
+        const long_url = apiUrlCommon + "2";
+        
+        console.log(lati_url);
+
+        function fetchdata(url){
+            
+            fetch(url)
+                .then(response => {
+            // Check if the response is successful
+            console.log(response + " response,.........")
+            console.log(response)
+            if (!response.ok) {
+            throw new Error('Failed to fetch data');
+            }
+            // Parse the JSON response
+                return response.json();
+            })
+            .then(data => {
+                // Extract the value from the response
+                let variableValue = data; // Assuming the response is the value itself
+
+                // Convert string to float if applicable
+                if (typeof variableValue === 'string') {
+                    variableValue = parseFloat(variableValue);
+                }
+                console.log('Variable value:', variableValue);
+
+                return variableValue;
+
+
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+        }
+
+        // Initial coordinates
+        var initialLatitude = fetchdata(lati_url);
+        var initialLongitude = fetchdata(long_url);
+        //console.log(initialLatitude);
+
+        
+        // Create the map
+        var map = L.map('map').setView([initialLatitude, initialLongitude], 13);
+
+        // Add the tile layer (open street map)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Create a marker with initial coordinates
+        var marker = L.marker([initialLatitude, initialLongitude]).addTo(map);
+
+        // Function to update marker position
+        function updateMarkerPosition(latitude, longitude) {
+            marker.setLatLng([latitude, longitude]);
+            map.setView([latitude, longitude], 13);
+        }
+
+        // Function to simulate changing coordinates (replace this with actual live data)
+        function simulateLiveLocation() {
+            var latitude = fetchdata(lati_url);
+            var longitude = fetchdata(long_url);
+            updateMarkerPosition(latitude, longitude);
+        }
+
+        // Call simulateLiveLocation every 3 seconds (for demonstration)
+        setInterval(simulateLiveLocation, 3000);
+        
+    </script>
+</body>
+</html>
